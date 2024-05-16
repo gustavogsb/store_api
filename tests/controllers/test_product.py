@@ -1,46 +1,43 @@
 from typing import List
 
 import pytest
-from tests.factories import product_data
 from fastapi import status
+
+from tests.factories import product_data
 
 
 async def test_controller_create_should_return_success(client, products_url):
     response = await client.post(products_url, json=product_data())
-
     content = response.json()
 
-    del content["created_at"]
-    del content["updated_at"]
-    del content["id"]
+    # print("Response content:", content)
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert content == {
-        "name": "Iphone 14 Pro Max",
-        "quantity": 10,
-        "price": "8.500",
-        "status": True,
-    }
+    assert content["name"] == "Iphone 14 Pro Max"
+    assert content["quantity"] == 10
+    assert content["price"] == "8500.00"
+    assert content["status"] is True
+    assert "id" in content
+    assert "created_at" in content
+    assert "updated_at" in content
 
 
 async def test_controller_get_should_return_success(
     client, products_url, product_inserted
 ):
     response = await client.get(f"{products_url}{product_inserted.id}")
-
     content = response.json()
 
-    del content["created_at"]
-    del content["updated_at"]
+    # print("Response content:", content)
 
     assert response.status_code == status.HTTP_200_OK
-    assert content == {
-        "id": str(product_inserted.id),
-        "name": "Iphone 14 Pro Max",
-        "quantity": 10,
-        "price": "8.500",
-        "status": True,
-    }
+    assert content["id"] == str(product_inserted.id)
+    assert content["name"] == "Iphone 14 Pro Max"
+    assert content["quantity"] == 10
+    assert content["price"] == "8500.00"
+    assert content["status"] is True
+    assert "created_at" in content
+    assert "updated_at" in content
 
 
 async def test_controller_get_should_return_not_found(client, products_url):
@@ -65,22 +62,19 @@ async def test_controller_patch_should_return_success(
     client, products_url, product_inserted
 ):
     response = await client.patch(
-        f"{products_url}{product_inserted.id}", json={"price": "7.500"}
+        f"{products_url}{product_inserted.id}", json={"price": "7500.00"}
     )
 
     content = response.json()
 
-    del content["created_at"]
-    del content["updated_at"]
-
     assert response.status_code == status.HTTP_200_OK
-    assert content == {
-        "id": str(product_inserted.id),
-        "name": "Iphone 14 Pro Max",
-        "quantity": 10,
-        "price": "7.500",
-        "status": True,
-    }
+    assert content["id"] == str(product_inserted.id)
+    assert content["name"] == "Iphone 14 Pro Max"
+    assert content["quantity"] == 10
+    assert content["price"] == "7500.00"
+    assert content["status"] is True
+    assert "created_at" in content
+    assert "updated_at" in content
 
 
 async def test_controller_delete_should_return_no_content(

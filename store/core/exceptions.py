@@ -1,3 +1,6 @@
+from fastapi import HTTPException
+
+
 class BaseException(Exception):
     message: str = "Internal Server Error"
 
@@ -7,4 +10,7 @@ class BaseException(Exception):
 
 
 class NotFoundException(BaseException):
-    message = "Not Found"
+    def __init__(self, message: str | None = None) -> None:
+        if message is None:
+            message = "Not Found"
+        super().__init__(message=message)

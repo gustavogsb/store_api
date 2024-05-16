@@ -2,8 +2,9 @@ from typing import List
 from uuid import UUID
 
 import pytest
+
 from store.core.exceptions import NotFoundException
-from store.schemas.product import ProductOut, ProductUpdateOut
+from store.schemas.product import ProductOut, ProductUpdate, ProductUpdateOut
 from store.usecases.product import product_usecase
 
 
@@ -40,10 +41,27 @@ async def test_usecases_query_should_return_success():
 
 
 async def test_usecases_update_should_return_success(product_up, product_inserted):
-    product_up.price = "7.500"
+    product_up.price = 7500.00  # Corrigir tipo de preço para float
     result = await product_usecase.update(id=product_inserted.id, body=product_up)
 
     assert isinstance(result, ProductUpdateOut)
+    assert result.price == 7500.00
+
+    # Verificar se o campo updated_at foi atualizado
+    assert result.updated_at > product_inserted.updated_at
+
+
+async def test_usecases_update_should_not_found():
+    product_up = ProductUpdate(price=7500.00)
+    with pytest.raises(NotFoundException) as err:
+        await product_usecase.update(
+            id=UUID("1e4f214e-85f7-461a-89d0-a751a32e3bb9"), body=product_up
+        )
+
+    assert (
+        err.value.message
+        == "Product not found with filter: 1e4f214e-85f7-461a-89d0-a751a32e3bb9"
+    )
 
 
 async def test_usecases_delete_should_return_success(product_inserted):
